@@ -1,36 +1,40 @@
-"use client";
+import fs from "fs";
+import path from "path";
 
-import Image from "next/image";
-
-// Dynamically load every PNG inside:
-// app/public/images/crops
-
-const req = require.context(
-  "../../public/images/crops",
-  false,
-  /\.(png|jpe?g|webp|svg)$/i
+const cropsDirectory = path.join(
+  process.cwd(),
+  "app/public/images/crops"
 );
 
-const crops = req.keys().map((key: string) => {
-  const imageModule = req(key);
+function getCrops() {
+  const files = fs.readdirSync(cropsDirectory);
 
-  const filename = key
-    .replace("./", "")
-    .replace(/\.(png|jpe?g|webp|svg)$/i, "");
+  return files
+    .filter((file) =>
+      /\.(png|jpg|jpeg|webp|svg)$/i.test(file)
+    )
+    .map((file) => {
+      const filename = file.replace(
+        /\.(png|jpg|jpeg|webp|svg)$/i,
+        ""
+      );
 
-  const prettyName = filename
-    .replace(/[0-9]/g, "")
-    .replace(/-/g, " ")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c: string) => c.toUpperCase());
+      const prettyName = filename
+        .replace(/[0-9]/g, "")
+        .replace(/-/g, " ")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
 
-  return {
-    name: prettyName,
-    image: imageModule.default || imageModule,
-  };
-});
+      return {
+        name: prettyName,
+        image: `/images/crops/${file}`,
+      };
+    });
+}
 
 export default function CropShowcase() {
+  const crops = getCrops();
+
   return (
     <section className="relative overflow-hidden py-24 bg-gradient-to-b from-[#071d12] via-[#0d2f1d] to-[#071d12]">
 
@@ -67,7 +71,7 @@ export default function CropShowcase() {
         {/* Crop Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
 
-          {crops.map((crop: any) => (
+          {crops.map((crop) => (
             <div
               key={crop.name}
               className="group relative flex flex-col items-center"
@@ -79,12 +83,10 @@ export default function CropShowcase() {
               {/* Image */}
               <div className="relative transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-2">
 
-                <Image
+                <img
                   src={crop.image}
                   alt={crop.name}
-                  width={180}
-                  height={180}
-                  className="object-contain drop-shadow-[0_0_30px_rgba(132,255,0,0.18)]"
+                  className="w-[180px] h-[180px] object-contain drop-shadow-[0_0_30px_rgba(132,255,0,0.18)]"
                 />
 
               </div>
