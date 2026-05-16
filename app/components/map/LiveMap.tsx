@@ -19,8 +19,7 @@ export default function LiveMap() {
       center: [-120.5, 46.2], // Eastern Washington vineyards
       zoom: 6,
       pitch: 45,
-      bearing: -17,
-      antialias: true,
+      bearing: -17
     });
 
     map.addControl(new maplibregl.NavigationControl(), "top-right");
