@@ -1,12 +1,17 @@
 import fs from "fs";
 import path from "path";
+import Image from "next/image";
 
 const cropsDirectory = path.join(
   process.cwd(),
-  "app/public/images/crops"
+  "public/images/crops"
 );
 
 function getCrops() {
+  if (!fs.existsSync(cropsDirectory)) {
+    return [];
+  }
+
   const files = fs.readdirSync(cropsDirectory);
 
   return files
@@ -36,31 +41,31 @@ export default function CropShowcase() {
   const crops = getCrops();
 
   return (
-    <section className="relative overflow-hidden py-24 bg-gradient-to-b from-[#071d12] via-[#0d2f1d] to-[#071d12]">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#071d12] via-[#0d2f1d] to-[#071d12] py-24">
 
       {/* Background Glow */}
-      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_rgba(132,255,0,0.15),_transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(132,255,0,0.15),_transparent_70%)] opacity-20" />
 
       {/* Grid Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
 
         {/* Header */}
-        <div className="text-center mb-20">
+        <div className="mb-20 text-center">
 
-          <div className="inline-block px-5 py-2 rounded-full border border-lime-400/30 bg-lime-400/10 text-lime-300 text-sm tracking-[0.25em] uppercase mb-6">
+          <div className="mb-6 inline-block rounded-full border border-lime-400/30 bg-lime-400/10 px-5 py-2 text-sm uppercase tracking-[0.25em] text-lime-300">
             Precision Agriculture
           </div>
 
-          <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+          <h2 className="mb-6 text-5xl font-bold leading-tight text-white md:text-6xl">
             Enterprise Intelligence
             <span className="block text-lime-400">
               Across Global Crops
             </span>
           </h2>
 
-          <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-300 leading-relaxed">
+          <p className="mx-auto max-w-3xl text-lg leading-relaxed text-gray-300 md:text-xl">
             AI-ready drone, satellite, and IoT analytics powering
             vineyards, orchards, specialty crops, and agricultural
             operations worldwide.
@@ -69,7 +74,7 @@ export default function CropShowcase() {
         </div>
 
         {/* Crop Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:grid-cols-5">
 
           {crops.map((crop) => (
             <div
@@ -78,15 +83,17 @@ export default function CropShowcase() {
             >
 
               {/* Glow */}
-              <div className="absolute inset-0 rounded-full blur-3xl bg-lime-400/20 opacity-0 group-hover:opacity-100 transition-all duration-700 scale-75 group-hover:scale-125" />
+              <div className="absolute inset-0 scale-75 rounded-full bg-lime-400/20 opacity-0 blur-3xl transition-all duration-700 group-hover:scale-125 group-hover:opacity-100" />
 
               {/* Image */}
-              <div className="relative transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-2">
+              <div className="relative transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-110">
 
-                <img
+                <Image
                   src={crop.image}
                   alt={crop.name}
-                  className="w-[180px] h-[180px] object-contain drop-shadow-[0_0_30px_rgba(132,255,0,0.18)]"
+                  width={180}
+                  height={180}
+                  className="h-[180px] w-[180px] object-contain drop-shadow-[0_0_30px_rgba(132,255,0,0.18)]"
                 />
 
               </div>
@@ -94,7 +101,7 @@ export default function CropShowcase() {
               {/* Name */}
               <div className="mt-6 text-center">
 
-                <h3 className="text-white font-semibold text-lg tracking-wide group-hover:text-lime-300 transition-colors duration-300">
+                <h3 className="text-lg font-semibold tracking-wide text-white transition-colors duration-300 group-hover:text-lime-300">
                   {crop.name}
                 </h3>
 
@@ -106,7 +113,7 @@ export default function CropShowcase() {
         </div>
 
         {/* Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24">
+        <div className="mt-24 grid grid-cols-2 gap-8 md:grid-cols-4">
 
           {[
             {
@@ -128,14 +135,14 @@ export default function CropShowcase() {
           ].map((metric) => (
             <div
               key={metric.label}
-              className="text-center border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm p-8"
+              className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-sm"
             >
 
-              <div className="text-4xl md:text-5xl font-bold text-lime-400 mb-3">
+              <div className="mb-3 text-4xl font-bold text-lime-400 md:text-5xl">
                 {metric.value}
               </div>
 
-              <div className="text-gray-300 uppercase tracking-[0.2em] text-sm">
+              <div className="text-sm uppercase tracking-[0.2em] text-gray-300">
                 {metric.label}
               </div>
 

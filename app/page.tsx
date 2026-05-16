@@ -1,71 +1,79 @@
-import Hero from "./components/hero/Hero";
+import Navigation from "./components/navigation/Navigation";
+
 import Footer from "./components/footer/Footer";
 import Metrics from "./components/metrics/Metrics";
 import LiveMap from "./components/map/LiveMap";
-import CropShowcase from "./components/crops/CropShowcase";
+import CropShowcase from "./crops/CropShowcase";
 
 import Image from "next/image";
-import logo from "./public/logos/PollenLogo.png";
 
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-black text-white">
 
-      {/* CUSTOM NAVIGATION */}
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-8">
-
-          {/* LEFT SIDE */}
-          <div className="flex items-center gap-14">
-
-            {/* LOGO */}
-            <Image
-              src={logo}
-              alt="Pollen Systems"
-              width={340}
-              height={90}
-              priority
-              className="h-14 w-auto object-contain"
-            />
-
-            {/* NAVIGATION */}
-            <nav className="hidden items-center gap-8 lg:flex">
-
-              {[
-                "Platform",
-                "Analytics",
-                "Crops",
-                "Technology",
-                "Contact",
-              ].map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="text-[13px] font-medium uppercase tracking-[0.22em] text-zinc-300 transition-all duration-300 hover:text-green-400"
-                >
-                  {item}
-                </a>
-              ))}
-
-            </nav>
-
-          </div>
-
-          {/* CTA */}
-          <button className="rounded-xl border border-green-500/30 bg-green-500/10 px-6 py-3 text-[13px] font-semibold uppercase tracking-[0.18em] text-green-400 transition-all duration-300 hover:border-green-400 hover:bg-green-500 hover:text-black">
-            Schedule Demo
-          </button>
-
-        </div>
-
-      </header>
+      {/* NAVIGATION */}
+      <Navigation />
 
       {/* HEADER SPACER */}
       <div className="h-20" />
 
       {/* HERO */}
-      <Hero />
+      <section className="relative overflow-hidden border-b border-white/10 bg-black">
+
+        {/* BACKGROUND IMAGE */}
+        <div className="absolute inset-0">
+
+          <Image
+            src="/SeeYourWorld.png"
+            alt="See Your World"
+            priority
+            fill
+            className="object-cover object-center opacity-30"
+          />
+
+          {/* DARK OVERLAY */}
+          <div className="absolute inset-0 bg-black/70" />
+
+          {/* GREEN GLOW */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.14),transparent_60%)]" />
+
+        </div>
+
+        <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-7xl flex-col items-center justify-center px-6 py-32 text-center">
+
+          <p className="mb-6 text-sm uppercase tracking-[0.45em] text-green-400">
+            Advanced Agricultural Analytics
+          </p>
+
+          <h1 className="max-w-6xl text-5xl font-black leading-none tracking-tight text-white md:text-7xl xl:text-8xl">
+            See Your World
+            <span className="mt-4 block text-green-400">
+              Save Our Planet™
+            </span>
+          </h1>
+
+          <p className="mt-10 max-w-4xl text-xl leading-relaxed text-zinc-300 md:text-2xl">
+            AI-ready agricultural intelligence powered by drones,
+            satellite imagery, IoT telemetry, and hyperscale
+            geospatial infrastructure.
+          </p>
+
+          {/* CTA */}
+          <div className="mt-14 flex flex-col gap-6 sm:flex-row">
+
+            <button className="rounded-2xl bg-green-500 px-10 py-5 text-lg font-semibold text-black transition-all duration-300 hover:scale-105 hover:bg-green-400">
+              Schedule a Demo
+            </button>
+
+            <button className="rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold text-white backdrop-blur transition-all duration-300 hover:border-green-400/30 hover:bg-white/10">
+              Explore PrecisionView™
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
 
       {/* METRICS */}
       <Metrics />
