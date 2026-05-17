@@ -10,7 +10,14 @@ import * as exifr from "exifr";
 
 import sharp from "sharp";
 
+import {
+  analyzeNearInfraredRaster,
+} from "@/lib/geospatial/nirRasterAnalyzer";
+
 export const runtime = "nodejs";
+
+export const dynamic =
+  "force-dynamic";
 
 const s3 = new S3Client({
   region:
@@ -93,7 +100,9 @@ function createFootprintPolygon(
     2 *
     altitude *
     Math.tan(
-      degreesToRadians(assumedFov / 2)
+      degreesToRadians(
+        assumedFov / 2
+      )
     );
 
   const groundHeightMeters =
@@ -199,13 +208,12 @@ function isInfraredImage(
     ).toLowerCase();
 
   return (
+    lowerKey.includes("_0004") ||
     lowerKey.includes("nir") ||
-    lowerKey.includes("infrared") ||
+    lowerKey.includes("rededge") ||
     lowerKey.includes(
       "multispectral"
     ) ||
-    lowerKey.includes("rededge") ||
-    lowerKey.includes("thermal") ||
     model.includes("m3m") ||
     model.includes("multispectral") ||
     model.includes("rededge")
@@ -283,6 +291,10 @@ export async function GET(
       );
     }
 
+    /*
+      FULL PAGINATED ENUMERATION
+    */
+
     let continuationToken:
       | string
       | undefined = undefined;
@@ -310,27 +322,64 @@ export async function GET(
         response.NextContinuationToken;
     } while (continuationToken);
 
+    /*
+      IMPORTANT CHANGE
+
+      ONLY PROCESS BAND 4
+      NIR / REDEDGE FILES
+
+      Prevents RGB imagery from
+      polluting vegetation analysis.
+    */
+
     const files = allObjects.filter(
-      (item) =>
-        !!item.Key &&
-        !item.Key.endsWith("/") &&
-        (item.Key.endsWith(".jpg") ||
-          item.Key.endsWith(".jpeg") ||
-          item.Key.endsWith(".tif") ||
-          item.Key.endsWith(".tiff"))
+      (item) => {
+        if (!item.Key) {
+          return false;
+        }
+
+        const key =
+          item.Key.toLowerCase();
+
+        const isBand4 =
+          key.includes("_0004") ||
+          key.endsWith("_4.tif") ||
+          key.endsWith("_4.tiff");
+
+        return (
+          !key.endsWith("/") &&
+          isBand4 &&
+          (key.endsWith(".tif") ||
+            key.endsWith(".tiff"))
+        );
+      }
     );
 
     console.log(
-      `Enumerated ${files.length.toLocaleString()} files`
+      `Enumerated ${files.length.toLocaleString()} band-4 files`
     );
+
+    /*
+      STREAMING NDJSON
+    */
 
     const stream = new ReadableStream({
       async start(controller) {
         const encoder =
           new TextEncoder();
 
+        let processedCount = 0;
+
         for (const file of files) {
           try {
+            console.log(
+              `Processing ${processedCount + 1}/${files.length}: ${file.Key}`
+            );
+
+            /*
+              FETCH FILE
+            */
+
             const objectResponse =
               await s3.send(
                 new GetObjectCommand({
@@ -344,10 +393,18 @@ export async function GET(
               continue;
             }
 
+            /*
+              BUFFER IMAGE
+            */
+
             const buffer =
               await streamToBuffer(
                 objectResponse.Body
               );
+
+            /*
+              EXIF
+            */
 
             const metadata =
               await exifr.parse(buffer, {
@@ -356,14 +413,15 @@ export async function GET(
                 tiff: true,
               });
 
-            if (
-              !isInfraredImage(
+            const infrared =
+              isInfraredImage(
                 file.Key || "",
                 metadata
-              )
-            ) {
-              continue;
-            }
+              );
+
+            /*
+              GPS
+            */
 
             const latitude =
               metadata?.latitude ||
@@ -377,8 +435,16 @@ export async function GET(
               !latitude ||
               !longitude
             ) {
+              console.log(
+                `Skipping ${file.Key} due to missing GPS`
+              );
+
               continue;
             }
+
+            /*
+              FLIGHT METADATA
+            */
 
             const altitude =
               metadata?.relativeAltitude ||
@@ -392,17 +458,11 @@ export async function GET(
               metadata?.yaw ||
               0;
 
-            const meanIntensity =
-              await calculateMeanIntensity(
-                buffer
-              );
+            /*
+              ORIGINAL FOOTPRINT
+            */
 
-            const severity =
-              classifySeverity(
-                meanIntensity
-              );
-
-            const polygon =
+            const footprintPolygon =
               createFootprintPolygon(
                 longitude,
                 latitude,
@@ -410,43 +470,132 @@ export async function GET(
                 heading
               );
 
-            const feature: GeoJSONFeature =
-              {
-                type: "Feature",
+            /*
+              NIR ANALYSIS
+            */
 
-                properties: {
-                  file:
-                    file.Key || "unknown",
-
-                  status: "Complete",
-
+            const anomalyPolygons =
+              await analyzeNearInfraredRaster(
+                buffer,
+                {
+                  longitude,
+                  latitude,
                   altitude,
-
                   heading,
+                }
+              );
 
-                  infrared: true,
+            /*
+              FALLBACK
+            */
 
-                  meanIntensity,
+            if (
+              anomalyPolygons.length === 0
+            ) {
+              const meanIntensity =
+                await calculateMeanIntensity(
+                  buffer
+                );
 
-                  severity,
-                },
+              const severity =
+                classifySeverity(
+                  meanIntensity
+                );
 
-                geometry: {
-                  type: "Polygon",
+              const feature: GeoJSONFeature =
+                {
+                  type: "Feature",
 
-                  coordinates: [polygon],
-                },
-              };
+                  properties: {
+                    file:
+                      file.Key ||
+                      "unknown",
 
-            controller.enqueue(
-              encoder.encode(
-                JSON.stringify(feature) +
-                  "\n"
-              )
-            );
+                    status:
+                      "Complete",
+
+                    altitude,
+
+                    heading,
+
+                    infrared,
+
+                    meanIntensity,
+
+                    severity,
+                  },
+
+                  geometry: {
+                    type: "Polygon",
+
+                    coordinates: [
+                      footprintPolygon,
+                    ],
+                  },
+                };
+
+              controller.enqueue(
+                encoder.encode(
+                  JSON.stringify(feature) +
+                    "\n"
+                )
+              );
+            } else {
+              /*
+                STREAM ANOMALIES
+              */
+
+              for (const anomaly of anomalyPolygons) {
+                controller.enqueue(
+                  encoder.encode(
+                    JSON.stringify({
+                      type: "Feature",
+
+                      properties: {
+                        file:
+                          file.Key ||
+                          "unknown",
+
+                        status:
+                          "Complete",
+
+                        altitude,
+
+                        heading,
+
+                        infrared,
+
+                        meanIntensity:
+                          anomaly
+                            .properties
+                            .meanNdvi,
+
+                        severity:
+                          anomaly
+                            .properties
+                            .severity,
+                      },
+
+                      geometry:
+                        anomaly.geometry,
+                    }) + "\n"
+                  )
+                );
+              }
+            }
+
+            processedCount++;
 
             console.log(
-              `Processed IR image: ${file.Key}`
+              `Processed ${processedCount}/${files.length}: ${file.Key}`
+            );
+
+            /*
+              ALLOW UI STREAMING
+            */
+
+            await new Promise((resolve) =>
+              setTimeout(resolve, 5)
             );
           } catch (fileError) {
             console.error(
@@ -458,6 +607,10 @@ export async function GET(
         }
 
         controller.close();
+
+        console.log(
+          `Streaming complete. ${processedCount} files processed.`
+        );
       },
     });
 
@@ -467,9 +620,13 @@ export async function GET(
           "application/x-ndjson",
 
         "Cache-Control":
-          "no-cache",
+          "no-cache, no-transform",
 
-        Connection: "keep-alive",
+        Connection:
+          "keep-alive",
+
+        "X-Accel-Buffering":
+          "no",
       },
     });
   } catch (error: any) {

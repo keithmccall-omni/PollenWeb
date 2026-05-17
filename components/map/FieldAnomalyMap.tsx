@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
 import maplibregl from "maplibre-gl";
-
 import * as turf from "@turf/turf";
 
 import {
@@ -42,11 +40,6 @@ interface Feature {
   };
 }
 
-interface FeatureCollection {
-  type: "FeatureCollection";
-  features: Feature[];
-}
-
 interface AnalysisFile {
   name: string;
   progress: number;
@@ -54,7 +47,8 @@ interface AnalysisFile {
     | "Queued"
     | "Loading"
     | "Analyzing"
-    | "Complete";
+    | "Complete"
+    | "Error";
 }
 
 export default function FieldAnomalyMap() {
@@ -95,6 +89,14 @@ export default function FieldAnomalyMap() {
       })
       .catch(console.error);
   }, []);
+
+  async function waitForNextFrame() {
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        resolve(true);
+      });
+    });
+  }
 
   async function loadPrefixes(prefix: string) {
     try {
@@ -155,8 +157,54 @@ export default function FieldAnomalyMap() {
     const map = new maplibregl.Map({
       container: mapContainer.current,
 
-      style:
-        "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+      style: {
+        version: 8,
+
+        sources: {
+          satellite: {
+            type: "raster",
+
+            tiles: [
+              "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            ],
+
+            tileSize: 256,
+
+            attribution: "© Esri",
+          },
+
+          labels: {
+            type: "raster",
+
+            tiles: [
+              "https://basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png",
+            ],
+
+            tileSize: 256,
+
+            attribution:
+              "© OpenStreetMap contributors © CARTO",
+          },
+        },
+
+        layers: [
+          {
+            id: "satellite-layer",
+
+            type: "raster",
+
+            source: "satellite",
+          },
+
+          {
+            id: "label-layer",
+
+            type: "raster",
+
+            source: "labels",
+          },
+        ],
+      },
 
       center: [-120.5, 46.2],
 
@@ -190,7 +238,7 @@ export default function FieldAnomalyMap() {
       });
 
       /*
-        IMAGE OUTLINES
+        FOOTPRINT OUTLINES
       */
 
       map.addLayer({
@@ -202,42 +250,89 @@ export default function FieldAnomalyMap() {
 
         paint: {
           "line-color": "#a8d84f",
-          "line-width": 2,
+          "line-width": 1.5,
+          "line-opacity": 0.6,
         },
       });
 
       /*
-        STRESS PIXELS
+        REAL POLYGON RENDERING
+        GREEN / YELLOW / RED
       */
 
       map.addLayer({
-        id: "stress-pixels",
+        id: "stress-polygons",
 
-        type: "circle",
+        type: "fill",
 
         source: "stress",
 
         paint: {
-          "circle-radius": 1.5,
+          "fill-color": [
+            "match",
 
-          "circle-color": [
+            ["get", "severity"],
+
+            /*
+              HIGH STRESS
+            */
+            "high",
+            "#ff0000",
+
+            /*
+              MODERATE STRESS
+            */
+            "medium",
+            "#ffd000",
+
+            /*
+              HEALTHY
+            */
+            "low",
+            "#00ff66",
+
+            /*
+              FALLBACK
+            */
+            "#00ff66",
+          ],
+
+          "fill-opacity": 0.55,
+        },
+      });
+
+      /*
+        POLYGON EDGES
+      */
+
+      map.addLayer({
+        id: "stress-outline",
+
+        type: "line",
+
+        source: "stress",
+
+        paint: {
+          "line-color": [
             "match",
 
             ["get", "severity"],
 
             "high",
-            "#ff0000",
+            "#ff5555",
 
             "medium",
-            "#ffaa00",
+            "#ffe066",
 
             "low",
-            "#ffff66",
+            "#66ff99",
 
-            "#00ff66",
+            "#66ff99",
           ],
 
-          "circle-opacity": 0.9,
+          "line-width": 0.5,
+
+          "line-opacity": 0.4,
         },
       });
     });
@@ -253,122 +348,78 @@ export default function FieldAnomalyMap() {
     };
   }, []);
 
-  function generateStressPoints(
-    polygon: number[][],
-    severity:
-      | "low"
-      | "medium"
-      | "high"
+  function mergeOverlappingPolygons(
+    polygons: any[]
   ) {
-    const points: any[] = [];
-
-    const minLng = Math.min(
-      ...polygon.map((p) => p[0])
-    );
-
-    const maxLng = Math.max(
-      ...polygon.map((p) => p[0])
-    );
-
-    const minLat = Math.min(
-      ...polygon.map((p) => p[1])
-    );
-
-    const maxLat = Math.max(
-      ...polygon.map((p) => p[1])
-    );
-
-    const count =
-      severity === "high"
-        ? 40
-        : severity === "medium"
-        ? 20
-        : 8;
-
-    for (let i = 0; i < count; i++) {
-      const lng =
-        minLng +
-        Math.random() *
-          (maxLng - minLng);
-
-      const lat =
-        minLat +
-        Math.random() *
-          (maxLat - minLat);
-
-      points.push({
-        type: "Feature",
-
-        properties: {
-          severity,
-        },
-
-        geometry: {
-          type: "Point",
-
-          coordinates: [lng, lat],
-        },
-      });
+    if (polygons.length === 0) {
+      return [];
     }
 
-    return points;
-  }
+    const merged: any[] = [];
 
-  function mergeOverlappingPolygons(
-  polygons: any[]
-) {
-  if (polygons.length === 0) {
-    return [];
-  }
+    for (const polygon of polygons) {
+      let mergedIntoExisting = false;
 
-  const merged: any[] = [];
-
-  for (const polygon of polygons) {
-    let mergedIntoExisting = false;
-
-    for (
-      let i = 0;
-      i < merged.length;
-      i++
-    ) {
-      try {
-        const intersects =
-          turf.booleanIntersects(
-            merged[i],
-            polygon
-          );
-
-        if (intersects) {
-          const unioned = turf.union(
-            turf.featureCollection([
+      for (
+        let i = 0;
+        i < merged.length;
+        i++
+      ) {
+        try {
+          const intersects =
+            turf.booleanIntersects(
               merged[i],
-              polygon,
-            ])
-          );
+              polygon
+            );
 
-          if (unioned) {
-            merged[i] = unioned;
-            mergedIntoExisting = true;
-            break;
+          if (intersects) {
+            const unioned = turf.union(
+              turf.featureCollection([
+                merged[i],
+                polygon,
+              ])
+            );
+
+            if (unioned) {
+              merged[i] = unioned;
+              mergedIntoExisting = true;
+              break;
+            }
           }
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(
-          "Polygon union error:",
-          error
-        );
+      }
+
+      if (!mergedIntoExisting) {
+        merged.push(polygon);
       }
     }
 
-    if (!mergedIntoExisting) {
-      merged.push(polygon);
-    }
+    return merged;
   }
 
-  return merged;
-}
+  async function waitForMapReady() {
+    const map = mapRef.current;
 
-async function loadAnomalies() {
+    if (!map) {
+      return false;
+    }
+
+    if (map.isStyleLoaded()) {
+      return true;
+    }
+
+    await new Promise<void>((resolve) => {
+      map.once("idle", () => {
+        resolve();
+      });
+    });
+
+    return true;
+  }
+
+  async function loadAnomalies() {
     if (!selectedBucket || !selectedPrefix)
       return;
 
@@ -377,9 +428,13 @@ async function loadAnomalies() {
     setAnalysisFiles([]);
 
     try {
-      /*
-        ENUMERATE FILES FIRST
-      */
+      await waitForMapReady();
+
+      const map = mapRef.current;
+
+      if (!map) {
+        return;
+      }
 
       const filesResponse = await fetch(
         `/api/aws/files?bucket=${selectedBucket}&prefix=${encodeURIComponent(
@@ -402,10 +457,6 @@ async function loadAnomalies() {
             file.key.endsWith(".tiff")
         );
 
-      /*
-        BUILD QUEUE IMMEDIATELY
-      */
-
       const queue =
         imageryFiles.map((file: any) => ({
           name:
@@ -419,27 +470,49 @@ async function loadAnomalies() {
 
       setAnalysisFiles(queue);
 
-      /*
-        REAL ANALYSIS
-      */
+      await waitForNextFrame();
 
       const response = await fetch(
         `/api/anomalies?bucket=${selectedBucket}&prefix=${encodeURIComponent(
           selectedPrefix
-        )}`
+        )}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        }
       );
 
-      const geojson: FeatureCollection =
-        await response.json();
+      if (!response.ok) {
+        const text =
+          await response.text();
 
-      console.log(
-        "Returned features:",
-        geojson.features.length
-      );
+        throw new Error(
+          `Streaming failed (${response.status}): ${text}`
+        );
+      }
 
-      const map = mapRef.current;
+      if (!response.body) {
+        throw new Error(
+          "No response body returned"
+        );
+      }
 
-      if (!map) return;
+      const reader =
+        response.body.getReader();
+
+      const decoder =
+        new TextDecoder();
+
+      let buffer = "";
+
+      let featureIndex = 0;
+
+      const renderedBoundaries: any[] =
+        [];
+
+      const quiltPolygons: any[] = [];
+
+      const renderedStress: any[] = [];
 
       const boundarySource =
         map.getSource(
@@ -451,142 +524,161 @@ async function loadAnomalies() {
           "stress"
         ) as maplibregl.GeoJSONSource;
 
-      const renderedBoundaries: any[] = [];
+      const bounds =
+        new maplibregl.LngLatBounds();
 
-      const quiltPolygons: any[] = [];
+      while (true) {
+        const { done, value } =
+          await reader.read();
 
-      const renderedStress: any[] = [];
-
-      for (
-        let i = 0;
-        i < geojson.features.length;
-        i++
-      ) {
-        const feature =
-          geojson.features[i];
-
-        /*
-          STATUS UPDATE
-        */
-
-        setAnalysisFiles((prev) =>
-          prev.map((item, idx) =>
-            idx === i
-              ? {
-                  ...item,
-                  status: "Analyzing",
-                  progress: 70,
-                }
-              : item
-          )
-        );
-
-        /*
-          ADD REAL BOUNDARY
-        */
-
-        renderedBoundaries.push(
-          feature
-        );
-
-        quiltPolygons.push(feature);
-
-        let quilt: any[] = [];
-
-        try {
-          quilt = mergeOverlappingPolygons(
-            quiltPolygons
-          );
-        } catch (error) {
-          console.error(
-            "Quilt merge failed:",
-            error
-          );
-
-          quilt = renderedBoundaries;
+        if (done) {
+          break;
         }
 
-        boundarySource.setData({
-          type: "FeatureCollection",
+        buffer += decoder.decode(value, {
+          stream: true,
+        });
 
-          features: quilt,
-        } as any);
+        const lines =
+          buffer.split("\n");
 
-        /*
-          STRESS PIXELS
-        */
+        buffer =
+          lines.pop() || "";
 
-        const polygon =
-          feature.geometry.coordinates[0];
+        for (const line of lines) {
+          if (!line.trim()) {
+            continue;
+          }
 
-        const stressPoints =
-          generateStressPoints(
-            polygon,
-            feature.properties
-              .severity
+          let feature: Feature;
+
+          try {
+            feature = JSON.parse(line);
+          } catch (parseError) {
+            console.error(
+              "Bad streamed JSON:",
+              line
+            );
+
+            continue;
+          }
+
+          /*
+            QUEUE UPDATES
+          */
+
+          setAnalysisFiles((prev) =>
+            prev.map((item, idx) =>
+              idx === featureIndex
+                ? {
+                    ...item,
+                    status: "Loading",
+                    progress: 25,
+                  }
+                : item
+            )
           );
 
-        renderedStress.push(
-          ...stressPoints
-        );
+          await waitForNextFrame();
 
-        stressSource.setData({
-          type: "FeatureCollection",
+          setAnalysisFiles((prev) =>
+            prev.map((item, idx) =>
+              idx === featureIndex
+                ? {
+                    ...item,
+                    status: "Analyzing",
+                    progress: 70,
+                  }
+                : item
+            )
+          );
 
-          features: renderedStress,
-        } as any);
+          /*
+            MAP UPDATE
+          */
 
-        /*
-          COMPLETE
-        */
+          renderedBoundaries.push(
+            feature
+          );
 
-        setAnalysisFiles((prev) =>
-          prev.map((item, idx) =>
-            idx === i
-              ? {
-                  ...item,
-                  status: "Complete",
-                  progress: 100,
-                }
-              : item
-          )
-        );
+          quiltPolygons.push(feature);
 
-        await new Promise((r) =>
-          setTimeout(r, 5)
-        );
-      }
+          let quilt: any[] = [];
 
-      /*
-        FIT MAP
-      */
-
-      if (
-        geojson.features.length > 0
-      ) {
-        const bounds =
-          new maplibregl.LngLatBounds();
-
-        geojson.features.forEach(
-          (f) => {
-            f.geometry.coordinates[0].forEach(
-              (coord) => {
-                bounds.extend([
-                  coord[0],
-                  coord[1],
-                ]);
-              }
+          try {
+            quilt = mergeOverlappingPolygons(
+              quiltPolygons
             );
+          } catch {
+            quilt = renderedBoundaries;
           }
-        );
 
-        map.fitBounds(bounds, {
-          padding: 100,
-          duration: 1200,
-        });
+          boundarySource.setData({
+            type: "FeatureCollection",
+
+            features: quilt,
+          } as any);
+
+          renderedStress.push(feature);
+
+          stressSource.setData({
+            type: "FeatureCollection",
+
+            features: renderedStress,
+          } as any);
+
+          const polygon =
+            feature.geometry.coordinates[0];
+
+          polygon.forEach((coord) => {
+            bounds.extend([
+              coord[0],
+              coord[1],
+            ]);
+          });
+
+          map.fitBounds(bounds, {
+            padding: 80,
+            duration: 0,
+          });
+
+          map.triggerRepaint();
+
+          await waitForNextFrame();
+
+          /*
+            COMPLETE
+          */
+
+          setAnalysisFiles((prev) =>
+            prev.map((item, idx) =>
+              idx === featureIndex
+                ? {
+                    ...item,
+                    status: "Complete",
+                    progress: 100,
+                  }
+                : item
+            )
+          );
+
+          featureIndex++;
+
+          await waitForNextFrame();
+        }
       }
     } catch (error) {
-      console.error(error);
+      console.error(
+        "loadAnomalies failed:",
+        error
+      );
+
+      setAnalysisFiles((prev) =>
+        prev.map((item) => ({
+          ...item,
+          status: "Error",
+        }))
+      );
     } finally {
       setIsAnalyzing(false);
     }
@@ -645,43 +737,9 @@ async function loadAnomalies() {
           </button>
 
           <button
-            onClick={async () => {
-              setSelectedPrefix(prefix);
-
-              try {
-                const filesResponse = await fetch(
-                  `/api/aws/files?bucket=${selectedBucket}&prefix=${encodeURIComponent(prefix)}`
-                );
-
-                const filesJson = await filesResponse.json();
-
-                const allFiles = filesJson.files || [];
-
-                const imageryFiles = allFiles.filter(
-                  (file: any) =>
-                    file.key.endsWith(".jpg") ||
-                    file.key.endsWith(".jpeg") ||
-                    file.key.endsWith(".tif") ||
-                    file.key.endsWith(".tiff")
-                );
-
-                const queue = imageryFiles.map(
-                  (file: any) => ({
-                    name:
-                      file.key.split("/").pop() ||
-                      file.key,
-
-                    progress: 0,
-
-                    status: "Queued" as const,
-                  })
-                );
-
-                setAnalysisFiles(queue);
-              } catch (error) {
-                console.error(error);
-              }
-            }}
+            onClick={() =>
+              setSelectedPrefix(prefix)
+            }
             className={`rounded px-2 py-[1px] text-[9px] font-bold transition-all ${
               selectedPrefix === prefix
                 ? "bg-[#7fa52e] text-white"
@@ -845,3 +903,4 @@ async function loadAnomalies() {
     </section>
   );
 }
+
