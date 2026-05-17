@@ -1,0 +1,281 @@
+[
+  {
+    "slug": "apples",
+    "name": "Apples",
+    "headline": "Optimize Apple Orchards with AI-Driven Intelligence",
+    "subheadline": "Drone, satellite, and IoT analytics designed for modern orchard operations.",
+    "description": "Pollen Systems provides precision agricultural intelligence for apple growers through drone imagery, NDVI analytics, environmental telemetry, irrigation optimization, and AI-powered operational visibility.",
+    "circleImage": "/images/crops/apples1.png",
+    "profileDiagram": "/images/diagrams/apple-profile.png",
+    "metrics": [
+      {
+        "label": "Acres Modeled",
+        "value": "1.2M+"
+      },
+      {
+        "label": "Yield Accuracy",
+        "value": "94%"
+      },
+      {
+        "label": "Water Reduction",
+        "value": "21%"
+      },
+      {
+        "label": "Disease Detection",
+        "value": "AI Enabled"
+      }
+    ]
+  },
+
+  {
+    "slug": "almonds",
+    "name": "Almonds",
+    "headline": "Precision Intelligence for Almond Operations",
+    "subheadline": "Advanced orchard analytics for water optimization and yield forecasting.",
+    "description": "Monitor canopy health, irrigation efficiency, environmental stress, and operational performance across almond orchards using AI-powered geospatial analytics.",
+    "circleImage": "/images/crops/almonds1.png",
+    "profileDiagram": "/images/diagrams/almond-profile.png",
+    "metrics": [
+      {
+        "label": "Water Savings",
+        "value": "24%"
+      },
+      {
+        "label": "Canopy Visibility",
+        "value": "Realtime"
+      },
+      {
+        "label": "Yield Forecasting",
+        "value": "AI Powered"
+      },
+      {
+        "label": "Operational Coverage",
+        "value": "Global"
+      }
+    ]
+  },
+
+  {
+    "slug": "avocados",
+    "name": "Avocados",
+    "headline": "Precision Avocado Intelligence at Scale",
+    "subheadline": "Drone and satellite intelligence for modern avocado operations.",
+    "description": "Monitor irrigation, canopy health, environmental stress, and operational efficiency across avocado orchards using AI-powered analytics.",
+    "circleImage": "/images/crops/avocados1.png",
+    "profileDiagram": "/images/diagrams/avocado-profile.png",
+    "metrics": [
+      {
+        "label": "Water Savings",
+        "value": "26%"
+      },
+      {
+        "label": "Canopy Analysis",
+        "value": "AI Enabled"
+      },
+      {
+        "label": "Operational Coverage",
+        "value": "Global"
+      },
+      {
+        "label": "Field Telemetry",
+        "value": "24/7"
+      }
+    ]
+  },
+
+  {
+    "slug": "blueberries",
+    "name": "Blueberries",
+    "headline": "Precision Intelligence for Blueberry Operations",
+    "subheadline": "Advanced crop analytics for specialty berry production.",
+    "description": "Monitor crop health, optimize irrigation, detect stress, and improve operational efficiency using AI-ready geospatial intelligence.",
+    "circleImage": "/images/crops/blueberries1.png",
+    "profileDiagram": "/images/diagrams/blueberry-profile.png",
+    "metrics": [
+      {
+        "label": "Fields Monitored",
+        "value": "480+"
+      },
+      {
+        "label": "Operational Visibility",
+        "value": "24/7"
+      },
+      {
+        "label": "Drone Coverage",
+        "value": "Global"
+      },
+      {
+        "label": "AI Models",
+        "value": "Realtime"
+      }
+    ]
+  },
+
+  {
+    "slug": "cherries",
+    "name": "Cherries",
+    "headline": "AI-Powered Cherry Orchard Intelligence",
+    "subheadline": "Advanced geospatial analytics for orchard optimization.",
+    "description": "Pollen Systems delivers operational visibility and AI-driven analytics for modern cherry production operations.",
+    "circleImage": "/images/crops/cherries1.png",
+    "profileDiagram": "/images/diagrams/cherry-profile.png",
+    "metrics": [
+      {
+        "label": "Orchards Managed",
+        "value": "320+"
+      },
+      {
+        "label": "Yield Insights",
+        "value": "AI Driven"
+      },
+      {
+        "label": "Water Optimization",
+        "value": "18%"
+      },
+      {
+        "label": "Field Visibility",
+        "value": "Realtime"
+      }
+    ]
+  },
+
+  {
+    "slug": "oranges",
+    "name": "Oranges",
+    "headline": "Operational Citrus Intelligence",
+    "subheadline": "AI-ready analytics for citrus production operations.",
+    "description": "Pollen Systems enables citrus growers to optimize irrigation, monitor crop stress, and improve operational efficiency through geospatial intelligence.",
+    "circleImage": "/images/crops/oranges1.png",
+    "profileDiagram": "/images/diagrams/orange-profile.png",
+    "metrics": [
+      {
+        "label": "Citrus Fields",
+        "value": "850+"
+      },
+      {
+        "label": "Irrigation Modeling",
+        "value": "Realtime"
+      },
+      {
+        "label": "Disease Detection",
+        "value": "AI Powered"
+      },
+      {
+        "label": "Yield Optimization",
+        "value": "17%"
+      }
+    ]
+  },
+
+  {
+    "slug": "raspberries",
+    "name": "Raspberries",
+    "headline": "AI Intelligence for Raspberry Production",
+    "subheadline": "Precision analytics for berry health and operational optimization.",
+    "description": "Track crop vigor, irrigation performance, environmental stress, and field operations with AI-ready geospatial analytics.",
+    "circleImage": "/images/crops/raspberries1.png",
+    "profileDiagram": "/images/diagrams/raspberry-profile.png",
+    "metrics": [
+      {
+        "label": "Berry Fields",
+        "value": "260+"
+      },
+      {
+        "label": "Stress Detection",
+        "value": "AI Enabled"
+      },
+      {
+        "label": "Irrigation Savings",
+        "value": "19%"
+      },
+      {
+        "label": "Operational Monitoring",
+        "value": "Realtime"
+      }
+    ]
+  },
+
+  {
+    "slug": "rice",
+    "name": "Rice",
+    "headline": "Large-Scale Rice Intelligence",
+    "subheadline": "Satellite and drone analytics for modern rice production.",
+    "description": "Monitor flooding, irrigation patterns, crop stress, and production efficiency across large-scale rice operations.",
+    "circleImage": "/images/crops/rice1.png",
+    "profileDiagram": "/images/diagrams/rice-profile.png",
+    "metrics": [
+      {
+        "label": "Acres Monitored",
+        "value": "4.2M+"
+      },
+      {
+        "label": "Flood Analysis",
+        "value": "Realtime"
+      },
+      {
+        "label": "Water Efficiency",
+        "value": "22%"
+      },
+      {
+        "label": "Satellite Coverage",
+        "value": "Global"
+      }
+    ]
+  },
+
+  {
+    "slug": "soybeans",
+    "name": "Soybeans",
+    "headline": "Precision Intelligence for Soybean Operations",
+    "subheadline": "AI-powered operational analytics for modern agriculture.",
+    "description": "Optimize yield performance, monitor crop stress, and improve operational efficiency across soybean production environments.",
+    "circleImage": "/images/crops/soybeans1.png",
+    "profileDiagram": "/images/diagrams/soybean-profile.png",
+    "metrics": [
+      {
+        "label": "Fields Modeled",
+        "value": "1.8M+"
+      },
+      {
+        "label": "Yield Optimization",
+        "value": "16%"
+      },
+      {
+        "label": "AI Crop Models",
+        "value": "Realtime"
+      },
+      {
+        "label": "Operational Visibility",
+        "value": "24/7"
+      }
+    ]
+  },
+
+  {
+    "slug": "winegrapes",
+    "name": "Wine Grapes",
+    "headline": "Precision Vineyard Intelligence",
+    "subheadline": "Advanced analytics for premium vineyard operations.",
+    "description": "Monitor vine stress, irrigation efficiency, canopy health, and harvest readiness through AI-ready drone and satellite analytics.",
+    "circleImage": "/images/crops/winegrapes1.png",
+    "profileDiagram": "/images/diagrams/winegrape-profile.png",
+    "metrics": [
+      {
+        "label": "Vineyards Modeled",
+        "value": "780+"
+      },
+      {
+        "label": "Water Reduction",
+        "value": "23%"
+      },
+      {
+        "label": "Harvest Forecasting",
+        "value": "AI Powered"
+      },
+      {
+        "label": "Operational Intelligence",
+        "value": "Realtime"
+      }
+    ]
+  }
+]

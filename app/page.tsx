@@ -1,9 +1,10 @@
-import Navigation from "./components/navigation/Navigation";
+import Navigation from "@/components/navigation/Navigation";
 
-import Footer from "./components/footer/Footer";
-import Metrics from "./components/metrics/Metrics";
-import LiveMap from "./components/map/LiveMap";
-import CropShowcase from "./crops/CropShowcase";
+import Footer from "@/components/footer/Footer";
+import Metrics from "@/components/metrics/Metrics";
+import LiveMap from "@/components/map/LiveMap";
+
+import CropShowcase from "@/app/crops/CropShowcase";
 
 import Image from "next/image";
 
@@ -81,6 +82,9 @@ export default function Home() {
       {/* LIVE MAP */}
       <LiveMap />
 
+      {/* CROP SHOWCASE */}
+      <CropShowcase />
+
       {/* DATA STACK */}
       <section className="relative overflow-hidden border-t border-white/10 bg-zinc-950 py-24">
 
@@ -157,9 +161,6 @@ export default function Home() {
         </div>
 
       </section>
-
-      {/* CROP SHOWCASE */}
-      <CropShowcase />
 
       {/* PLATFORM SECTION */}
       <section className="relative overflow-hidden border-t border-white/10 bg-black py-28">

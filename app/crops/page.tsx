@@ -1,9 +1,6 @@
-# app/crops/page.tsx
-
-```tsx
-import Navigation from "../components/navigation/Navigation";
-import Footer from "../components/footer/Footer";
-import CropShowcase from "../components/crops/CropShowcase";
+import Navigation from "../../components/navigation/Navigation";
+import Footer from "../../components/footer/Footer";
+import CropShowcase from "../crops/CropShowcase";
 
 export default function CropsPage() {
   return (
@@ -11,80 +8,6 @@ export default function CropsPage() {
 
       {/* NAVIGATION */}
       <Navigation />
-
-      {/* HEADER SPACER */}
-      <div className="h-24" />
-
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-white/10 bg-black py-32">
-
-        {/* BACKGROUND GLOW */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(132,255,0,0.12),transparent_60%)]" />
-
-        {/* GRID */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
-
-        <div className="relative z-10 mx-auto max-w-7xl px-6 text-center">
-
-          <div className="mb-6 inline-flex rounded-full border border-lime-400/30 bg-lime-400/10 px-6 py-2 text-sm uppercase tracking-[0.3em] text-lime-300">
-            Global Crop Intelligence
-          </div>
-
-          <h1 className="mx-auto max-w-6xl text-5xl font-black leading-none tracking-tight text-white md:text-7xl xl:text-8xl">
-            Precision Agriculture
-            <span className="mt-4 block text-lime-400">
-              Across Every Crop
-            </span>
-          </h1>
-
-          <p className="mx-auto mt-10 max-w-4xl text-xl leading-relaxed text-zinc-300 md:text-2xl">
-            AI-ready drone, satellite, IoT, and geospatial analytics
-            designed to optimize irrigation, crop health, yield,
-            and operational visibility across modern agriculture.
-          </p>
-
-          {/* STATS */}
-          <div className="mt-20 grid grid-cols-2 gap-6 md:grid-cols-4">
-
-            {[
-              {
-                value: "10M+",
-                label: "Acres Modeled",
-              },
-              {
-                value: "4,000+",
-                label: "Drone Pilots",
-              },
-              {
-                value: "AI",
-                label: "Driven Analytics",
-              },
-              {
-                value: "Global",
-                label: "Crop Coverage",
-              },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm"
-              >
-
-                <div className="mb-3 text-4xl font-bold text-lime-400 md:text-5xl">
-                  {item.value}
-                </div>
-
-                <div className="text-sm uppercase tracking-[0.2em] text-zinc-300">
-                  {item.label}
-                </div>
-
-              </div>
-            ))}
-
-          </div>
-
-        </div>
-
-      </section>
 
       {/* CROP SHOWCASE */}
       <CropShowcase />
@@ -204,4 +127,4 @@ export default function CropsPage() {
     </main>
   );
 }
-```
+
