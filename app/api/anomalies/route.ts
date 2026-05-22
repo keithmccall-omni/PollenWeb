@@ -4,6 +4,7 @@ import {
   S3Client,
   GetObjectCommand,
   ListObjectsV2Command,
+  type ListObjectsV2CommandOutput,
 } from "@aws-sdk/client-s3";
 
 import * as exifr from "exifr";
@@ -11,7 +12,7 @@ import * as exifr from "exifr";
 import sharp from "sharp";
 
 import {
-  analyzeNearInfraredRaster,
+  analyzeNDVIRaster,
 } from "@/lib/geospatial/nirRasterAnalyzer";
 
 export const runtime = "nodejs";
@@ -226,11 +227,11 @@ function classifySeverity(
   | "low"
   | "medium"
   | "high" {
-  if (meanIntensity < 70) {
+  if (meanIntensity < 0.2) {
     return "high";
   }
 
-  if (meanIntensity < 130) {
+  if (meanIntensity < 0.45) {
     return "medium";
   }
 
@@ -259,12 +260,25 @@ async function calculateMeanIntensity(
       total += data[i];
     }
 
-    return total / data.length;
+    return (
+      total / data.length / 255
+    );
   } catch (error) {
     console.error(error);
 
-    return 128;
+    return 0.5;
   }
+}
+
+function getMatchingNIRKey(
+  redKey: string
+) {
+  return redKey
+    .replace("_3.tif", "_4.tif")
+    .replace("_3.tiff", "_4.tiff")
+    .replace("_3.TIF", "_4.TIF")
+    .replace("_3.TIFF", "_4.TIFF")
+    .replace("_0003", "_0004");
 }
 
 export async function GET(
@@ -302,16 +316,17 @@ export async function GET(
     const allObjects: any[] = [];
 
     do {
-      const response = await s3.send(
-        new ListObjectsV2Command({
-          Bucket: bucket,
+      const response: ListObjectsV2CommandOutput =
+        await s3.send(
+          new ListObjectsV2Command({
+            Bucket: bucket,
 
-          Prefix: prefix,
+            Prefix: prefix,
 
-          ContinuationToken:
-            continuationToken,
-        })
-      );
+            ContinuationToken:
+              continuationToken,
+          })
+        );
 
       const contents =
         response.Contents || [];
@@ -323,16 +338,13 @@ export async function GET(
     } while (continuationToken);
 
     /*
-      IMPORTANT CHANGE
+      ALTUM:
 
-      ONLY PROCESS BAND 4
-      NIR / REDEDGE FILES
-
-      Prevents RGB imagery from
-      polluting vegetation analysis.
+      _3 = RED
+      _4 = NIR
     */
 
-    const files = allObjects.filter(
+    const redFiles = allObjects.filter(
       (item) => {
         if (!item.Key) {
           return false;
@@ -341,14 +353,14 @@ export async function GET(
         const key =
           item.Key.toLowerCase();
 
-        const isBand4 =
-          key.includes("_0004") ||
-          key.endsWith("_4.tif") ||
-          key.endsWith("_4.tiff");
+        const isBand3 =
+          key.includes("_0003") ||
+          key.endsWith("_3.tif") ||
+          key.endsWith("_3.tiff");
 
         return (
           !key.endsWith("/") &&
-          isBand4 &&
+          isBand3 &&
           (key.endsWith(".tif") ||
             key.endsWith(".tiff"))
         );
@@ -356,7 +368,7 @@ export async function GET(
     );
 
     console.log(
-      `Enumerated ${files.length.toLocaleString()} band-4 files`
+      `Enumerated ${redFiles.length.toLocaleString()} RED band files`
     );
 
     /*
@@ -370,52 +382,109 @@ export async function GET(
 
         let processedCount = 0;
 
-        for (const file of files) {
+        for (const redFile of redFiles) {
           try {
             console.log(
-              `Processing ${processedCount + 1}/${files.length}: ${file.Key}`
+              `Processing ${processedCount + 1}/${redFiles.length}: ${redFile.Key}`
             );
 
-            /*
-              FETCH FILE
-            */
+            const redKey =
+              redFile.Key;
 
-            const objectResponse =
-              await s3.send(
-                new GetObjectCommand({
-                  Bucket: bucket,
-
-                  Key: file.Key,
-                })
-              );
-
-            if (!objectResponse.Body) {
+            if (!redKey) {
               continue;
             }
 
             /*
-              BUFFER IMAGE
+              FIND MATCHING NIR
             */
 
-            const buffer =
+            const nirKey =
+              getMatchingNIRKey(
+                redKey
+              );
+
+            const nirFile =
+              allObjects.find(
+                (item) =>
+                  item.Key === nirKey
+              );
+
+            if (!nirFile) {
+              console.warn(
+                `Missing NIR pair for ${redKey}`
+              );
+
+              continue;
+            }
+
+            /*
+              FETCH RED
+            */
+
+            const redObjectResponse =
+              await s3.send(
+                new GetObjectCommand({
+                  Bucket: bucket,
+
+                  Key: redKey,
+                })
+              );
+
+            /*
+              FETCH NIR
+            */
+
+            const nirObjectResponse =
+              await s3.send(
+                new GetObjectCommand({
+                  Bucket: bucket,
+
+                  Key: nirKey,
+                })
+              );
+
+            if (
+              !redObjectResponse.Body ||
+              !nirObjectResponse.Body
+            ) {
+              continue;
+            }
+
+            /*
+              BUFFER IMAGES
+            */
+
+            const redBuffer =
               await streamToBuffer(
-                objectResponse.Body
+                redObjectResponse.Body
+              );
+
+            const nirBuffer =
+              await streamToBuffer(
+                nirObjectResponse.Body
               );
 
             /*
               EXIF
+
+              Use RED image EXIF
+              for positioning.
             */
 
             const metadata =
-              await exifr.parse(buffer, {
-                gps: true,
-                xmp: true,
-                tiff: true,
-              });
+              await exifr.parse(
+                redBuffer,
+                {
+                  gps: true,
+                  xmp: true,
+                  tiff: true,
+                }
+              );
 
             const infrared =
               isInfraredImage(
-                file.Key || "",
+                nirKey,
                 metadata
               );
 
@@ -436,7 +505,7 @@ export async function GET(
               !longitude
             ) {
               console.log(
-                `Skipping ${file.Key} due to missing GPS`
+                `Skipping ${redKey} due to missing GPS`
               );
 
               continue;
@@ -471,12 +540,13 @@ export async function GET(
               );
 
             /*
-              NIR ANALYSIS
+              TRUE NDVI ANALYSIS
             */
 
             const anomalyPolygons =
-              await analyzeNearInfraredRaster(
-                buffer,
+              await analyzeNDVIRaster(
+                redBuffer,
+                nirBuffer,
                 {
                   longitude,
                   latitude,
@@ -494,7 +564,7 @@ export async function GET(
             ) {
               const meanIntensity =
                 await calculateMeanIntensity(
-                  buffer
+                  nirBuffer
                 );
 
               const severity =
@@ -508,7 +578,7 @@ export async function GET(
 
                   properties: {
                     file:
-                      file.Key ||
+                      redKey ||
                       "unknown",
 
                     status:
@@ -553,7 +623,7 @@ export async function GET(
 
                       properties: {
                         file:
-                          file.Key ||
+                          redKey ||
                           "unknown",
 
                         status:
@@ -587,7 +657,7 @@ export async function GET(
             processedCount++;
 
             console.log(
-              `Processed ${processedCount}/${files.length}: ${file.Key}`
+              `Processed ${processedCount}/${redFiles.length}: ${redKey}`
             );
 
             /*
@@ -600,7 +670,7 @@ export async function GET(
           } catch (fileError) {
             console.error(
               "File processing failed:",
-              file.Key,
+              redFile.Key,
               fileError
             );
           }

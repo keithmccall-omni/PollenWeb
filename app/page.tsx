@@ -1,12 +1,11 @@
 import Navigation from "@/components/navigation/Navigation";
-
 import Footer from "@/components/footer/Footer";
 import Metrics from "@/components/metrics/Metrics";
-import LiveMap from "@/components/map/LiveMap";
-
+import FieldAnomalyMap from "@/components/field-anomaly/FieldAnomalyMap";
 import CropShowcase from "@/app/crops/CropShowcase";
 
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -54,7 +53,7 @@ export default function Home() {
           </h1>
 
           <p className="mt-10 max-w-4xl text-xl leading-relaxed text-zinc-300 md:text-2xl">
-            AI-ready agricultural intelligence powered by drones,
+            AI-enabled agricultural intelligence powered by drones,
             satellite imagery, IoT telemetry, and hyperscale
             geospatial infrastructure.
           </p>
@@ -66,9 +65,14 @@ export default function Home() {
               Schedule a Demo
             </button>
 
-            <button className="rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold text-white backdrop-blur transition-all duration-300 hover:border-green-400/30 hover:bg-white/10">
+            <a
+              href="https://portal.pollensystems.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold text-white backdrop-blur transition-all duration-300 hover:border-green-400/30 hover:bg-white/10"
+            >
               Explore PrecisionView™
-            </button>
+            </a>
 
           </div>
 
@@ -79,11 +83,11 @@ export default function Home() {
       {/* METRICS */}
       <Metrics />
 
-      {/* LIVE MAP */}
-      <LiveMap />
-
-      {/* CROP SHOWCASE */}
+      {/* CROPS SECTION */}
       <CropShowcase />
+
+      {/* LIVE MAP */}
+      <FieldAnomalyMap />
 
       {/* DATA STACK */}
       <section className="relative overflow-hidden border-t border-white/10 bg-zinc-950 py-24">
@@ -97,7 +101,7 @@ export default function Home() {
           <div className="mb-20 text-center">
 
             <p className="mb-4 text-sm uppercase tracking-[0.35em] text-green-400">
-              Modern Agricultural Intelligence
+              Enterprise Agricultural Intelligence
             </p>
 
             <h2 className="mb-6 text-4xl font-bold leading-tight md:text-6xl">
@@ -198,7 +202,7 @@ export default function Home() {
                 {[
                   "Drone + Satellite Intelligence",
                   "NDVI + Multispectral Analysis",
-                  "AI-Powered Crop Analytics",
+                  "AI-enabled Crop Analytics",
                   "Irrigation + Environmental Monitoring",
                   "Enterprise Geospatial Infrastructure",
                 ].map((feature) => (
@@ -307,6 +311,38 @@ export default function Home() {
 
       </section>
 
+      {/* TEAM SECTION */}
+      <section className="relative overflow-hidden border-t border-white/10 bg-black py-24">
+
+        <div className="mx-auto max-w-5xl px-6 text-center">
+
+          <p className="mb-4 text-sm uppercase tracking-[0.35em] text-green-400">
+            Leadership
+          </p>
+
+          <h2 className="mb-8 text-5xl font-bold leading-tight md:text-6xl">
+            Meet the
+            <span className="block text-green-400">
+              Pollen Systems Team
+            </span>
+          </h2>
+
+          <p className="mx-auto mb-12 max-w-3xl text-lg leading-relaxed text-zinc-400">
+            Builders, technologists, agronomists, geospatial experts,
+            and AI specialists focused on the future of agriculture.
+          </p>
+
+          <Link
+            href="/team"
+            className="inline-flex rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold text-white backdrop-blur transition-all duration-300 hover:border-green-400/30 hover:bg-white/10"
+          >
+            Meet the Team
+          </Link>
+
+        </div>
+
+      </section>
+
       {/* CTA */}
       <section className="relative overflow-hidden border-t border-white/10 bg-zinc-950 py-28">
 
@@ -326,7 +362,7 @@ export default function Home() {
           </h2>
 
           <p className="mx-auto mb-12 max-w-3xl text-xl leading-relaxed text-zinc-400">
-            Bring AI-powered geospatial intelligence into your
+            Bring AI-enabled geospatial intelligence into your
             agricultural workflows with drones, satellites,
             IoT sensors, and enterprise analytics.
           </p>

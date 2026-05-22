@@ -10,26 +10,32 @@ const navigation = [
   {
     name: "Home",
     href: "/",
+    external: false,
   },
   {
     name: "PrecisionView™",
-    href: "/precisionview",
+    href: "https://portal.pollensystems.com",
+    external: true,
   },
   {
     name: "Crops",
     href: "/crops",
+    external: false,
   },
   {
     name: "Team",
     href: "/team",
+    external: false,
   },
   {
     name: "Contact",
     href: "/contact",
+    external: false,
   },
   {
     name: "Blog",
     href: "/blog",
+    external: false,
   },
 ];
 
@@ -78,15 +84,27 @@ export default function Navigation() {
           {/* DESKTOP NAV */}
           <nav className="hidden items-center gap-10 lg:flex">
 
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm font-medium tracking-wide text-zinc-300 transition hover:text-green-400"
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) =>
+              item.external ? (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium tracking-wide text-zinc-300 transition hover:text-green-400"
+                >
+                  {item.name}
+                </a>
+              ) : (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm font-medium tracking-wide text-zinc-300 transition hover:text-green-400"
+                >
+                  {item.name}
+                </Link>
+              )
+            )}
 
           </nav>
 
@@ -153,16 +171,29 @@ export default function Navigation() {
               className="flex flex-col gap-8 px-6 py-12"
             >
 
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-3xl font-semibold text-white"
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {navigation.map((item) =>
+                item.external ? (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-3xl font-semibold text-white"
+                  >
+                    {item.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-3xl font-semibold text-white"
+                  >
+                    {item.name}
+                  </Link>
+                )
+              )}
 
               <button className="mt-6 rounded-2xl bg-green-500 px-6 py-4 text-lg font-semibold text-black">
                 Schedule Demo

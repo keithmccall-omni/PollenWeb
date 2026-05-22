@@ -30,6 +30,14 @@ export interface AnalyzeRasterOptions {
 
   heading: number;
 
+  /*
+    REAL IMAGE DIMENSIONS
+  */
+
+  imageWidth?: number;
+
+  imageHeight?: number;
+
   gridResolution?: number;
 
   overlapMultiplier?: number;
@@ -54,24 +62,58 @@ function metersToLatitudeDegrees(
   return meters / 111320;
 }
 
-function estimateGroundDimensions(
-  altitude: number
+function degreesToRadians(
+  degrees: number
 ) {
-  const assumedFov = 78;
+  return (degrees * Math.PI) / 180;
+}
 
-  const width =
+/*
+  MUCH CLOSER TO ALTUM
+
+  Previous:
+    78 degrees
+
+  Actual Altum:
+    closer to ~48 horizontal
+*/
+
+function estimateGroundDimensions(
+  altitude: number,
+
+  imageWidth = 2064,
+
+  imageHeight = 1544
+) {
+  /*
+    ALTUM APPROXIMATE HFOV
+  */
+
+  const horizontalFov = 48;
+
+  const groundWidth =
     2 *
     altitude *
     Math.tan(
-      ((assumedFov / 2) * Math.PI) /
-        180
+      degreesToRadians(
+        horizontalFov / 2
+      )
     );
 
-  const height = width * 0.75;
+  /*
+    PRESERVE ASPECT RATIO
+  */
+
+  const aspectRatio =
+    imageHeight / imageWidth;
+
+  const groundHeight =
+    groundWidth * aspectRatio;
 
   return {
-    width,
-    height,
+    width: groundWidth,
+
+    height: groundHeight,
   };
 }
 
@@ -93,14 +135,6 @@ function rotatePoint(
       y * Math.cos(angle),
   };
 }
-
-/*
-  SMALL OVERLAP
-
-  Enough to blend neighboring
-  polygons without creating
-  giant sheets.
-*/
 
 function buildPixelPolygon(
   centerLng: number,
@@ -169,8 +203,17 @@ const severityPriority = {
   high: 1,
 };
 
-export async function analyzeNearInfraredRaster(
-  buffer: Buffer,
+/*
+  TRUE NDVI ANALYSIS
+
+  Altum:
+    _3 = RED
+    _4 = NIR
+*/
+
+export async function analyzeNDVIRaster(
+  redBuffer: Buffer,
+  nirBuffer: Buffer,
   options: AnalyzeRasterOptions
 ): Promise<NDVIAnomalyPolygon[]> {
   const {
@@ -179,14 +222,12 @@ export async function analyzeNearInfraredRaster(
     altitude,
     heading,
 
+    imageWidth = 2064,
+
+    imageHeight = 1544,
+
     /*
       HIGHER RESOLUTION
-
-      Previous:
-        36
-
-      New:
-        72
 
       Produces smoother
       transitions and less
@@ -195,20 +236,25 @@ export async function analyzeNearInfraredRaster(
 
     gridResolution = 72,
 
-    overlapMultiplier = 1.12,
+    /*
+      REDUCED OVERLAP
+
+      Previous:
+        1.12
+
+      Tightens alignment
+      substantially.
+    */
+
+    overlapMultiplier = 0.82,
   } = options;
 
   /*
-    SMOOTHED RASTER
-
-    IMPORTANT:
-    Blur removes the harsh
-    checkerboard effect from
-    individual raster cells.
+    RED BAND
   */
 
-  const resized =
-    await sharp(buffer)
+  const redResized =
+    await sharp(redBuffer)
       .resize({
         width: gridResolution,
         height: gridResolution,
@@ -220,9 +266,6 @@ export async function analyzeNearInfraredRaster(
       */
       .blur(1.2)
 
-      /*
-        BAND-4 GRAYSCALE
-      */
       .greyscale()
 
       .raw()
@@ -231,17 +274,50 @@ export async function analyzeNearInfraredRaster(
         resolveWithObject: true,
       });
 
-  const pixels = resized.data;
+  /*
+    NIR BAND
+  */
 
-  const width = resized.info.width;
+  const nirResized =
+    await sharp(nirBuffer)
+      .resize({
+        width: gridResolution,
+        height: gridResolution,
+        fit: "fill",
+      })
 
-  const height = resized.info.height;
+      /*
+        SMOOTHING
+      */
+      .blur(1.2)
+
+      .greyscale()
+
+      .raw()
+
+      .toBuffer({
+        resolveWithObject: true,
+      });
+
+  const redPixels =
+    redResized.data;
+
+  const nirPixels =
+    nirResized.data;
+
+  const width =
+    nirResized.info.width;
+
+  const height =
+    nirResized.info.height;
 
   const {
     width: groundWidth,
     height: groundHeight,
   } = estimateGroundDimensions(
-    altitude
+    altitude,
+    imageWidth,
+    imageHeight
   );
 
   const cellWidthMeters =
@@ -282,41 +358,57 @@ export async function analyzeNearInfraredRaster(
         y * width + x;
 
       /*
-        RAW BAND-4 VALUE
+        TRUE NDVI
 
-        Your imagery appears
-        inverted:
-
-          dark canopy
-          bright roads
-
-        So invert it.
+        Altum:
+          _3 = RED
+          _4 = NIR
       */
 
-      const raw =
-        pixels[idx] / 255;
+      const red =
+        redPixels[idx] / 255;
 
-      const vegetationScore =
-        1 - raw;
+      const nir =
+        nirPixels[idx] / 255;
 
       /*
-        CONTRAST ENHANCEMENT
+        NDVI
+      */
+
+      const ndvi =
+        (nir - red) /
+        (nir + red + 0.0001);
+
+      /*
+        NORMALIZE
+
+        Converts:
+          -1 -> 0
+           0 -> 0.5
+           1 -> 1
       */
 
       const enhanced =
-        Math.pow(
-          vegetationScore,
-          1.35
+        Math.max(
+          0,
+          Math.min(
+            1,
+            (ndvi + 1) / 2
+          )
         );
 
       /*
-        HEALTHY = GREEN
+        REAL NDVI THRESHOLDS
+
+        roads/dirt -> RED
+        stressed crops -> YELLOW
+        healthy crops -> GREEN
       */
 
       const severity =
-        enhanced >= 0.72
+        ndvi >= 0.45
           ? "low"
-          : enhanced >= 0.48
+          : ndvi >= 0.2
           ? "medium"
           : "high";
 

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   S3Client,
   ListObjectsV2Command,
+  type ListObjectsV2CommandOutput,
 } from "@aws-sdk/client-s3";
 
 export const runtime = "nodejs";
@@ -57,16 +58,17 @@ export async function GET(
     const allFiles: any[] = [];
 
     do {
-      const response = await s3.send(
-        new ListObjectsV2Command({
-          Bucket: bucket,
+      const response: ListObjectsV2CommandOutput =
+        await s3.send(
+          new ListObjectsV2Command({
+            Bucket: bucket,
 
-          Prefix: prefix,
+            Prefix: prefix,
 
-          ContinuationToken:
-            continuationToken,
-        })
-      );
+            ContinuationToken:
+              continuationToken,
+          })
+        );
 
       const contents =
         response.Contents || [];
