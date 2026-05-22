@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+
+import {
+  Geist,
+  Geist_Mono,
+} from "next/font/google";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,11 +18,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.pollensystems.com"),
+  metadataBase: new URL(
+    "https://www.pollensystems.com"
+  ),
 
   title: {
     default: "Pollen Systems",
-    template: "%s | Pollen Systems",
+    template:
+      "%s | Pollen Systems",
   },
 
   description:
@@ -25,17 +33,41 @@ export const metadata: Metadata = {
 
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
-      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      {
+        url: "/favicon.ico",
+      },
+
+      {
+        url: "/favicon-16x16.png",
+        sizes: "16x16",
+        type: "image/png",
+      },
+
+      {
+        url: "/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+
+      {
+        url: "/favicon-48x48.png",
+        sizes: "48x48",
+        type: "image/png",
+      },
+
+      {
+        url: "/favicon-96x96.png",
+        sizes: "96x96",
+        type: "image/png",
+      },
     ],
 
     apple: [
       {
         url: "/apple-touch-icon.png",
+
         sizes: "180x180",
+
         type: "image/png",
       },
     ],
@@ -54,7 +86,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      data-scroll-behavior="smooth"
+      className={`
+        ${geistSans.variable}
+        ${geistMono.variable}
+        h-full
+        scroll-smooth
+        antialiased
+      `}
     >
       <body className="min-h-screen overflow-x-hidden bg-black text-white">
         {children}

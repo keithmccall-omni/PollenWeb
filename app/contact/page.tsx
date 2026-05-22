@@ -1,7 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -14,6 +18,23 @@ export default function ContactPage() {
 
   const coordsRef =
     useRef<HTMLDivElement | null>(null);
+
+  const [formData, setFormData] =
+    useState({
+      name: "",
+      email: "",
+      company: "",
+      message: "",
+    });
+
+  const [sending, setSending] =
+    useState(false);
+
+  const [success, setSuccess] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -170,7 +191,6 @@ export default function ContactPage() {
       });
     });
 
-    // CLICK POPUP
     map.on("click", (e) => {
       const lng =
         e.lngLat.lng.toFixed(6);
@@ -222,7 +242,6 @@ export default function ContactPage() {
         .addTo(map);
     });
 
-    // LIVE COORDINATES
     map.on("mousemove", (e) => {
       if (!coordsRef.current) return;
 
@@ -236,6 +255,74 @@ export default function ContactPage() {
       map.remove();
     };
   }, []);
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement |
+      HTMLTextAreaElement
+    >
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]:
+        e.target.value,
+    });
+  };
+
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
+    e.preventDefault();
+
+    setSending(true);
+    setError("");
+    setSuccess(false);
+
+    try {
+      const response =
+        await fetch(
+          "/api/contact",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify(
+              formData
+            ),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Failed to send message"
+        );
+      }
+
+      setSuccess(true);
+
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        message: "",
+      });
+    } catch (err: any) {
+      setError(
+        err.message ||
+          "Unable to send message"
+      );
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-black text-white">
@@ -251,7 +338,8 @@ export default function ContactPage() {
       {/* MAIN HERO */}
       <section className="relative z-10 px-7 pb-8 pt-[120px]">
         <div className="mx-auto grid max-w-[1600px] gap-7 lg:grid-cols-[420px_1fr]">
-          {/* LEFT ADDRESS HERO */}
+
+          {/* LEFT HERO */}
           <motion.div
             initial={{
               opacity: 0,
@@ -278,7 +366,7 @@ export default function ContactPage() {
             "
           >
             <div className="space-y-5">
-              {/* ADDRESS */}
+
               <div>
                 <p className="text-[11px] uppercase tracking-[0.38em] text-[#8DFF00]">
                   Address
@@ -299,28 +387,19 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* EMAIL */}
               <div>
                 <p className="text-[11px] uppercase tracking-[0.38em] text-[#8DFF00]">
                   Email
                 </p>
 
                 <a
-                  href="mailto:info@pollensystems.com"
-                  className="
-                    mt-3
-                    block
-                    text-[19px]
-                    text-white
-                    transition-colors
-                    hover:text-[#8DFF00]
-                  "
+                  href="mailto:ops@pollensystems.com"
+                  className="mt-3 block text-[19px] text-white transition-colors hover:text-[#8DFF00]"
                 >
-                  info@pollensystems.com
+                  ops@pollensystems.com
                 </a>
               </div>
 
-              {/* PHONE */}
               <div>
                 <p className="text-[11px] uppercase tracking-[0.38em] text-[#8DFF00]">
                   Phone
@@ -328,21 +407,14 @@ export default function ContactPage() {
 
                 <a
                   href="tel:+14255031693"
-                  className="
-                    mt-3
-                    block
-                    text-[19px]
-                    text-white
-                    transition-colors
-                    hover:text-[#8DFF00]
-                  "
+                  className="mt-3 block text-[19px] text-white transition-colors hover:text-[#8DFF00]"
                 >
                   (425) 503-1693
                 </a>
               </div>
+
             </div>
 
-            {/* DIRECTIONS BUTTON */}
             <a
               href="https://maps.apple.com/?address=14400%20NE%20145th%20St,%20STE%20302,%20Woodinville,%20WA%2098072"
               target="_blank"
@@ -368,7 +440,7 @@ export default function ContactPage() {
             </a>
           </motion.div>
 
-          {/* MAP HERO */}
+          {/* MAP */}
           <motion.div
             initial={{
               opacity: 0,
@@ -397,10 +469,8 @@ export default function ContactPage() {
               className="h-full w-full"
             />
 
-            {/* DARK OVERLAY */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/20" />
 
-            {/* LIVE COORDS */}
             <div
               ref={coordsRef}
               className="
@@ -422,6 +492,7 @@ export default function ContactPage() {
               47.73447, -122.14919
             </div>
           </motion.div>
+
         </div>
       </section>
 
@@ -465,10 +536,18 @@ export default function ContactPage() {
             Start a Conversation
           </h2>
 
-          <form className="mt-12 space-y-7">
+          <form
+            onSubmit={handleSubmit}
+            className="mt-12 space-y-7"
+          >
             <div className="grid gap-7 lg:grid-cols-2">
+
               <input
                 type="text"
+                name="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
                 placeholder="Full Name"
                 className="
                   w-full
@@ -488,6 +567,10 @@ export default function ContactPage() {
 
               <input
                 type="email"
+                name="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="Email Address"
                 className="
                   w-full
@@ -504,10 +587,14 @@ export default function ContactPage() {
                   focus:border-[#00ff88]
                 "
               />
+
             </div>
 
             <input
               type="text"
+              name="company"
+              value={formData.company}
+              onChange={handleChange}
               placeholder="Company"
               className="
                 w-full
@@ -527,6 +614,10 @@ export default function ContactPage() {
 
             <textarea
               rows={7}
+              name="message"
+              required
+              value={formData.message}
+              onChange={handleChange}
               placeholder="Tell us about your agriculture, drone, geospatial, or AI requirements."
               className="
                 w-full
@@ -544,8 +635,21 @@ export default function ContactPage() {
               "
             />
 
+            {error && (
+              <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-red-300">
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="rounded-2xl border border-green-500/30 bg-green-500/10 px-5 py-4 text-green-300">
+                Message sent successfully.
+              </div>
+            )}
+
             <button
               type="submit"
+              disabled={sending}
               className="
                 w-full
                 rounded-2xl
@@ -558,10 +662,15 @@ export default function ContactPage() {
                 transition-all
                 duration-300
                 hover:bg-[#18F36A]
+                disabled:cursor-not-allowed
+                disabled:opacity-60
               "
             >
-              Send Message
+              {sending
+                ? "Sending..."
+                : "Send Message"}
             </button>
+
           </form>
         </motion.div>
       </section>

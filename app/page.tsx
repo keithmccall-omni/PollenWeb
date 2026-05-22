@@ -1,11 +1,13 @@
-import Navigation from "@/components/navigation/Navigation";
-import Footer from "@/components/footer/Footer";
-import Metrics from "@/components/metrics/Metrics";
-import FieldAnomalyMap from "@/components/field-anomaly/FieldAnomalyMap";
-import CropShowcase from "@/app/crops/CropShowcase";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
+
+import Navigation from "@/components/navigation/Navigation";
+import Footer from "@/components/footer/Footer";
+import Metrics from "@/components/metrics/Metrics";
+import CropShowcase from "@/app/crops/CropShowcase";
 
 export default function Home() {
   return (
@@ -20,50 +22,127 @@ export default function Home() {
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-white/10 bg-black">
 
-        {/* BACKGROUND IMAGE */}
-        <div className="absolute inset-0">
+        {/* BACKGROUND */}
+        <div className="absolute inset-0 overflow-hidden">
 
           <Image
             src="/SeeYourWorld.png"
             alt="See Your World"
             priority
             fill
-            className="object-cover object-center opacity-30"
+            className="object-cover object-center opacity-20"
           />
 
           {/* DARK OVERLAY */}
-          <div className="absolute inset-0 bg-black/70" />
+          <div className="absolute inset-0 bg-black/82" />
+
+          {/* GRID */}
+          <div
+            className="absolute inset-0 opacity-[0.08]"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(74,222,128,0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74,222,128,0.3) 1px, transparent 1px)
+              `,
+              backgroundSize: "100px 100px",
+            }}
+          />
 
           {/* GREEN GLOW */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.14),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.18),transparent_65%)]" />
 
         </div>
 
-        <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-7xl flex-col items-center justify-center px-6 py-32 text-center">
+        {/* CONTENT */}
+        <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-7xl flex-col items-center justify-center px-6 pt-16 pb-32 text-center">
 
-          <p className="mb-6 text-sm uppercase tracking-[0.45em] text-green-400">
-            Advanced Agricultural Analytics
-          </p>
+          {/* LABEL */}
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 10,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.45,
+            }}
+            className="rounded-full border border-green-500/30 bg-green-500/10 px-8 py-3 backdrop-blur"
+          >
+            <p className="text-[11px] uppercase tracking-[0.38em] text-[#B8FF3B]">
+              Precision Agriculture
+            </p>
+          </motion.div>
 
-          <h1 className="max-w-6xl text-5xl font-black leading-none tracking-tight text-white md:text-7xl xl:text-8xl">
-            See Your World
-            <span className="mt-4 block text-green-400">
+          {/* TITLE */}
+          <motion.h1
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.55,
+              delay: 0.05,
+            }}
+            className="mt-4 max-w-6xl text-5xl font-black leading-[0.95] tracking-tight text-white md:text-7xl xl:text-[7rem]"
+          >
+            Agricultural Intelligence
+
+            <span className="mt-5 block text-[#8DFF00]">
               Save Our Planet™
             </span>
-          </h1>
+          </motion.h1>
 
-          <p className="mt-10 max-w-4xl text-xl leading-relaxed text-zinc-300 md:text-2xl">
+          {/* SUBTEXT */}
+          <motion.p
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.6,
+              delay: 0.12,
+            }}
+            className="mt-12 max-w-5xl text-2xl leading-relaxed text-zinc-300"
+          >
             AI-enabled agricultural intelligence powered by drones,
             satellite imagery, IoT telemetry, and hyperscale
             geospatial infrastructure.
-          </p>
+          </motion.p>
 
           {/* CTA */}
-          <div className="mt-14 flex flex-col gap-6 sm:flex-row">
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.6,
+              delay: 0.18,
+            }}
+            className="mt-16 flex flex-col gap-6 sm:flex-row"
+          >
 
-            <button className="rounded-2xl bg-green-500 px-10 py-5 text-lg font-semibold text-black transition-all duration-300 hover:scale-105 hover:bg-green-400">
+            <Link
+              href="/contact#contact-form"
+              className="rounded-2xl bg-green-500 px-10 py-5 text-lg font-semibold text-black transition-all duration-300 hover:scale-105 hover:bg-green-400"
+            >
               Schedule a Demo
-            </button>
+            </Link>
 
             <a
               href="https://portal.pollensystems.com"
@@ -74,20 +153,17 @@ export default function Home() {
               Explore PrecisionView™
             </a>
 
-          </div>
+          </motion.div>
 
         </div>
 
       </section>
 
-      {/* METRICS */}
-      <Metrics />
-
       {/* CROPS SECTION */}
       <CropShowcase />
 
-      {/* LIVE MAP */}
-      <FieldAnomalyMap />
+      {/* METRICS */}
+      <Metrics />
 
       {/* DATA STACK */}
       <section className="relative overflow-hidden border-t border-white/10 bg-zinc-950 py-24">
@@ -169,7 +245,6 @@ export default function Home() {
       {/* PLATFORM SECTION */}
       <section className="relative overflow-hidden border-t border-white/10 bg-black py-28">
 
-        {/* BACKGROUND GLOW */}
         <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-green-500/10 blur-3xl" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-6">
@@ -311,38 +386,6 @@ export default function Home() {
 
       </section>
 
-      {/* TEAM SECTION */}
-      <section className="relative overflow-hidden border-t border-white/10 bg-black py-24">
-
-        <div className="mx-auto max-w-5xl px-6 text-center">
-
-          <p className="mb-4 text-sm uppercase tracking-[0.35em] text-green-400">
-            Leadership
-          </p>
-
-          <h2 className="mb-8 text-5xl font-bold leading-tight md:text-6xl">
-            Meet the
-            <span className="block text-green-400">
-              Pollen Systems Team
-            </span>
-          </h2>
-
-          <p className="mx-auto mb-12 max-w-3xl text-lg leading-relaxed text-zinc-400">
-            Builders, technologists, agronomists, geospatial experts,
-            and AI specialists focused on the future of agriculture.
-          </p>
-
-          <Link
-            href="/team"
-            className="inline-flex rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold text-white backdrop-blur transition-all duration-300 hover:border-green-400/30 hover:bg-white/10"
-          >
-            Meet the Team
-          </Link>
-
-        </div>
-
-      </section>
-
       {/* CTA */}
       <section className="relative overflow-hidden border-t border-white/10 bg-zinc-950 py-28">
 
@@ -351,7 +394,7 @@ export default function Home() {
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
 
           <p className="mb-4 text-sm uppercase tracking-[0.35em] text-green-400">
-            Ready to Modernize Your Operations?
+            Ready to Modernize Your Farm?
           </p>
 
           <h2 className="mb-8 text-5xl font-bold leading-tight md:text-7xl">
@@ -369,9 +412,12 @@ export default function Home() {
 
           <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
 
-            <button className="rounded-2xl bg-green-500 px-10 py-5 text-lg font-semibold text-black transition-all duration-300 hover:scale-105 hover:bg-green-400">
+            <Link
+              href="/contact#contact-form"
+              className="rounded-2xl bg-green-500 px-10 py-5 text-lg font-semibold text-black transition-all duration-300 hover:scale-105 hover:bg-green-400"
+            >
               Schedule a Demo
-            </button>
+            </Link>
 
             <button className="rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold text-white backdrop-blur transition-all duration-300 hover:border-green-400/30 hover:bg-white/10">
               Explore Platform
