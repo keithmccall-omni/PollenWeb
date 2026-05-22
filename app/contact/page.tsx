@@ -91,7 +91,7 @@ export default function ContactPage() {
 
       pitch: 0,
 
-      bearing: 0
+      bearing: 0,
     });
 
     map.addControl(
@@ -426,7 +426,10 @@ export default function ContactPage() {
       </section>
 
       {/* CONTACT FORM */}
-      <section className="relative z-10 px-7 py-24">
+      <section
+        id="contact-form"
+        className="relative z-10 px-7 py-24"
+      >
         <motion.div
           initial={{
             opacity: 0,

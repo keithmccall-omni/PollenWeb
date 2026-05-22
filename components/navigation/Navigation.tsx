@@ -32,28 +32,55 @@ const navigation = [
     href: "/contact",
     external: false,
   },
-  {
-    name: "Blog",
-    href: "/blog",
-    external: false,
-  },
 ];
 
 export default function Navigation() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
+  const [scrolled, setScrolled] =
+    useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 30);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener(
+      "scroll",
+      handleScroll
+    );
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
     };
   }, []);
+
+  const handleScheduleDemo = () => {
+    if (
+      window.location.pathname !== "/contact"
+    ) {
+      window.location.href =
+        "/contact#contact-form";
+
+      return;
+    }
+
+    const section =
+      document.getElementById(
+        "contact-form"
+      );
+
+    if (section) {
+      section.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
 
   return (
     <>
@@ -111,15 +138,32 @@ export default function Navigation() {
           {/* CTA */}
           <div className="hidden lg:block">
 
-            <button className="rounded-2xl bg-green-500 px-8 py-4 text-sm font-semibold text-black transition-all duration-300 hover:scale-105 hover:bg-green-400">
-              Schedule Demo
+            <button
+              onClick={handleScheduleDemo}
+              className="
+                rounded-2xl
+                bg-green-500
+                px-8
+                py-4
+                text-sm
+                font-semibold
+                text-black
+                transition-all
+                duration-300
+                hover:scale-105
+                hover:bg-green-400
+              "
+            >
+              Schedule a Demo
             </button>
 
           </div>
 
           {/* MOBILE BUTTON */}
           <button
-            onClick={() => setMobileMenuOpen(true)}
+            onClick={() =>
+              setMobileMenuOpen(true)
+            }
             className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white backdrop-blur lg:hidden"
           >
             <Menu className="h-6 w-6" />
@@ -143,7 +187,9 @@ export default function Navigation() {
 
               <Link
                 href="/"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() =>
+                  setMobileMenuOpen(false)
+                }
               >
                 <Image
                   src="/logos/PollenLogo.png"
@@ -155,7 +201,9 @@ export default function Navigation() {
               </Link>
 
               <button
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() =>
+                  setMobileMenuOpen(false)
+                }
                 className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white"
               >
                 <X className="h-6 w-6" />
@@ -164,10 +212,21 @@ export default function Navigation() {
             </div>
 
             <motion.div
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 30, opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              initial={{
+                y: 30,
+                opacity: 0,
+              }}
+              animate={{
+                y: 0,
+                opacity: 1,
+              }}
+              exit={{
+                y: 30,
+                opacity: 0,
+              }}
+              transition={{
+                duration: 0.25,
+              }}
               className="flex flex-col gap-8 px-6 py-12"
             >
 
@@ -178,7 +237,9 @@ export default function Navigation() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() =>
+                      setMobileMenuOpen(false)
+                    }
                     className="text-3xl font-semibold text-white"
                   >
                     {item.name}
@@ -187,7 +248,9 @@ export default function Navigation() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() =>
+                      setMobileMenuOpen(false)
+                    }
                     className="text-3xl font-semibold text-white"
                   >
                     {item.name}
@@ -195,8 +258,24 @@ export default function Navigation() {
                 )
               )}
 
-              <button className="mt-6 rounded-2xl bg-green-500 px-6 py-4 text-lg font-semibold text-black">
-                Schedule Demo
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+
+                  handleScheduleDemo();
+                }}
+                className="
+                  mt-6
+                  rounded-2xl
+                  bg-green-500
+                  px-6
+                  py-4
+                  text-lg
+                  font-semibold
+                  text-black
+                "
+              >
+                Schedule a Demo
               </button>
 
             </motion.div>
