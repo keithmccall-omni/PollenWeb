@@ -8,6 +8,7 @@ import Navigation from "@/components/navigation/Navigation";
 import Footer from "@/components/footer/Footer";
 import Metrics from "@/components/metrics/Metrics";
 import CropShowcase from "@/app/crops/CropShowcase";
+import ModernAgriculturalDataStack from "@/components/agriculture/ModernAgriculturalDataStack";
 
 export default function Home() {
   return (
@@ -165,82 +166,8 @@ export default function Home() {
       {/* METRICS */}
       <Metrics />
 
-      {/* DATA STACK */}
-      <section className="relative overflow-hidden border-t border-white/10 bg-zinc-950 py-24">
-
-        {/* BACKGROUND GLOW */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.12),transparent_55%)]" />
-
-        <div className="relative z-10 mx-auto max-w-7xl px-6">
-
-          {/* SECTION HEADER */}
-          <div className="mb-20 text-center">
-
-            <p className="mb-4 text-sm uppercase tracking-[0.35em] text-green-400">
-              Enterprise Agricultural Intelligence
-            </p>
-
-            <h2 className="mb-6 text-4xl font-bold leading-tight md:text-6xl">
-              The Modern
-              <span className="block text-green-400">
-                Agricultural Data Stack
-              </span>
-            </h2>
-
-            <p className="mx-auto max-w-3xl text-lg leading-relaxed text-zinc-400">
-              Integrating drones, satellites, IoT sensors, and AI into
-              a unified operational intelligence platform built for
-              modern growers and enterprise agriculture.
-            </p>
-
-          </div>
-
-          {/* DATA GRID */}
-          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
-
-            {[
-              {
-                title: "Drone Imagery",
-                desc: "High-resolution RGB, NDVI, thermal, and multispectral capture at field scale.",
-              },
-              {
-                title: "Satellite Data",
-                desc: "Historical trend analysis and regional intelligence across large agricultural operations.",
-              },
-              {
-                title: "IoT Sensors",
-                desc: "Real-time environmental monitoring, irrigation telemetry, and climate intelligence.",
-              },
-              {
-                title: "AI Analytics",
-                desc: "Predictive modeling, operational recommendations, and geospatial crop intelligence.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="group rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur transition-all duration-500 hover:-translate-y-2 hover:border-green-400/30 hover:bg-white/[0.08]"
-              >
-
-                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-green-500/20 bg-green-500/10 text-green-400">
-                  <div className="h-3 w-3 rounded-full bg-green-400" />
-                </div>
-
-                <h3 className="mb-4 text-2xl font-semibold text-white">
-                  {item.title}
-                </h3>
-
-                <p className="leading-relaxed text-zinc-400">
-                  {item.desc}
-                </p>
-
-              </div>
-            ))}
-
-          </div>
-
-        </div>
-
-      </section>
+      {/* MODERN AGRICULTURAL DATA STACK */}
+      <ModernAgriculturalDataStack />
 
       {/* PLATFORM SECTION */}
       <section className="relative overflow-hidden border-t border-white/10 bg-black py-28">
