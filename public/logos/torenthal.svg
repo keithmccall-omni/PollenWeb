@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="4096" height="4096" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ringStroke" x1="0.18" y1="0.10" x2="0.86" y2="0.92">
+      <stop offset="0%" stop-color="#86D8FF"/>
+      <stop offset="22%" stop-color="#6CB9E8"/>
+      <stop offset="50%" stop-color="#2A5FB0"/>
+      <stop offset="74%" stop-color="#183E8E"/>
+      <stop offset="100%" stop-color="#7DDFFF"/>
+    </linearGradient>
+
+    <linearGradient id="topMainGrad" x1="0.12" y1="0.18" x2="0.88" y2="0.82">
+      <stop offset="0%" stop-color="#2F72B6"/>
+      <stop offset="26%" stop-color="#58B7E9"/>
+      <stop offset="48%" stop-color="#8EE3FF"/>
+      <stop offset="68%" stop-color="#4E91D2"/>
+      <stop offset="100%" stop-color="#1A376F"/>
+    </linearGradient>
+
+    <linearGradient id="topRightGrad" x1="0.00" y1="0.15" x2="1.00" y2="0.95">
+      <stop offset="0%" stop-color="#2F72B6"/>
+      <stop offset="20%" stop-color="#1C4E98"/>
+      <stop offset="58%" stop-color="#132F73"/>
+      <stop offset="100%" stop-color="#0A1D56"/>
+    </linearGradient>
+
+    <linearGradient id="stemGrad" x1="0.22" y1="0.08" x2="0.70" y2="0.95">
+      <stop offset="0%" stop-color="#76D6FF"/>
+      <stop offset="22%" stop-color="#63B5E6"/>
+      <stop offset="48%" stop-color="#3E73BF"/>
+      <stop offset="78%" stop-color="#16377D"/>
+      <stop offset="100%" stop-color="#081A57"/>
+    </linearGradient>
+
+    <linearGradient id="facetGrad" x1="0.12" y1="0.02" x2="0.88" y2="1.0">
+      <stop offset="0%" stop-color="#C8F3FF" stop-opacity="0.85"/>
+      <stop offset="28%" stop-color="#A8E7FF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="swooshGrad" x1="0.10" y1="0.30" x2="0.90" y2="0.75">
+      <stop offset="0%" stop-color="#C7F1FF" stop-opacity="0.00"/>
+      <stop offset="34%" stop-color="#A9E7FF" stop-opacity="0.26"/>
+      <stop offset="52%" stop-color="#D8FAFF" stop-opacity="0.52"/>
+      <stop offset="78%" stop-color="#8EDBFF" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#A3ECFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="swooshDark" x1="0.10" y1="0.10" x2="0.85" y2="0.90">
+      <stop offset="0%" stop-color="#6ED1FF" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#2B6CC3" stop-opacity="0"/>
+    </linearGradient>
+
+    <radialGradient id="ringGloss" cx="0.32" cy="0.08" r="0.95">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.26"/>
+      <stop offset="24%" stop-color="#B7EBFF" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="
+        1 0 0 0 0
+        0 1 0 0 0
+        0 0 1 0 0
+        0 0 0 0.22 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <clipPath id="clipTopMain">
+      <path d="M301 393 L592 393 L533 332 L357 332 Z"/>
+    </clipPath>
+
+    <clipPath id="clipTopRight">
+      <path d="M564 332 L721 332 L721 393 L624 393 Z"/>
+    </clipPath>
+
+    <clipPath id="clipStem">
+      <path d="M475 464 L548 407 L548 714 L475 772 Z"/>
+    </clipPath>
+  </defs>
+
+  <g filter="url(#softGlow)">
+    <circle cx="514" cy="503" r="345" fill="none" stroke="url(#ringStroke)" stroke-width="19"/>
+    <circle cx="514" cy="503" r="345" fill="none" stroke="url(#ringGloss)" stroke-width="8" opacity="0.8"/>
+
+    <g>
+      <path d="M301 393 L592 393 L533 332 L357 332 Z" fill="url(#topMainGrad)"/>
+      <g clip-path="url(#clipTopMain)">
+        <path d="M298 385
+                 C360 364, 429 374, 494 384
+                 C533 390, 562 392, 596 390
+                 L596 406 L298 406 Z"
+              fill="url(#swooshDark)" opacity="0.9"/>
+        <path d="M286 370
+                 C356 348, 422 347, 486 357
+                 C531 364, 561 372, 607 386
+                 L607 414 L286 414 Z"
+              fill="url(#swooshGrad)"/>
+        <ellipse cx="422" cy="352" rx="44" ry="24" fill="#D5FBFF" opacity="0.18"/>
+        <path d="M311 392 L592 392" stroke="#D9F9FF" stroke-opacity="0.65" stroke-width="1.2"/>
+      </g>
+    </g>
+
+    <g>
+      <path d="M564 332 L721 332 L721 393 L624 393 Z" fill="url(#topRightGrad)"/>
+      <g clip-path="url(#clipTopRight)">
+        <path d="M574 366
+                 C604 353, 643 352, 677 360
+                 C698 365, 711 374, 728 390
+                 L728 402 L574 402 Z"
+              fill="url(#swooshDark)" opacity="0.8"/>
+        <path d="M566 350
+                 C596 336, 636 336, 676 348
+                 C703 357, 718 367, 732 382
+                 L732 396 L566 396 Z"
+              fill="#78CFFF" opacity="0.06"/>
+        <path d="M568 332 L721 332" stroke="#D4F7FF" stroke-opacity="0.45" stroke-width="1"/>
+      </g>
+    </g>
+
+    <g>
+      <path d="M475 464 L548 407 L548 714 L475 772 Z" fill="url(#stemGrad)"/>
+      <g clip-path="url(#clipStem)">
+        <path d="M474 456 L548 406 L514 536 L476 770 Z" fill="url(#facetGrad)"/>
+        <path d="M481 764
+                 C483 648, 500 565, 523 474
+                 C532 440, 541 421, 549 409
+                 L549 715 L481 764 Z"
+              fill="#8FD8FF" opacity="0.10"/>
+        <path d="M475 464 L548 407" stroke="#D8FBFF" stroke-opacity="0.65" stroke-width="1.2"/>
+      </g>
+    </g>
+  </g>
+</svg>
