@@ -101,7 +101,7 @@
     "circleImage": "/images/crops/blueberries1.png",
     "profileDiagram": {
       "title": "Blueberry Crop Profile",
-      "image": "/images/diagrams/blueberry-profile.png"
+      "image": "/images/crops/blueberries1.png"
     },
     "metrics": [
       {
@@ -194,7 +194,7 @@
     "circleImage": "/images/crops/raspberries1.png",
     "profileDiagram": {
       "title": "Raspberry Production Profile",
-      "image": "/images/diagrams/raspberry-profile.png"
+      "image": "/images/crops/raspberries1.png"
     },
     "metrics": [
       {

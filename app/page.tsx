@@ -155,14 +155,7 @@ export default function Home() {
               Schedule a Demo
             </Link>
 
-            <a
-              href="https://portal.pollensystems.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-2xl border border-white/10 bg-white/5 px-10 py-5 text-lg font-semibold text-white backdrop-blur transition-all duration-300 hover:border-green-400/30 hover:bg-white/10"
-            >
-              Explore PrecisionView™
-            </a>
+            
 
           </motion.div>
 
