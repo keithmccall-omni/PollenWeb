@@ -19,11 +19,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    "https://www.pollensystems.com"
+    "https://pollensystems.com"
   ),
 
   title: {
-    default: "Pollen Systems",
+    default: "Pollen Systems | AI-Powered Precision Agriculture",
     template:
       "%s | Pollen Systems",
   },
@@ -31,6 +31,15 @@ export const metadata: Metadata = {
   description:
     "AI-ready agricultural intelligence powered by drones, satellite imagery, IoT telemetry, and geospatial analytics.",
 
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "Pollen Systems",
+    title: "Pollen Systems | AI-Powered Precision Agriculture",
+    description: "AI-ready agricultural intelligence powered by drones, satellite imagery, IoT telemetry, and geospatial analytics.",
+    url: "/",
+  },
+  twitter: { card: "summary_large_image" },
   icons: {
     icon: [
       {

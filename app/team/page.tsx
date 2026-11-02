@@ -43,6 +43,8 @@ export default function TeamPage() {
         <div className="absolute right-[-200px] bottom-[-200px] h-[600px] w-[600px] rounded-full bg-[#155A96]/10 blur-3xl" />
       </div>
 
+      <h1 className="sr-only">Pollen Systems Leadership Team</h1>
+
       {/* Team Section */}
       <section className="relative z-10 flex min-h-screen items-center justify-center px-6 pt-28 pb-10 lg:px-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-10 lg:flex-row lg:items-start lg:justify-center lg:gap-8">

@@ -9,6 +9,9 @@ export default function CropsPage() {
       {/* NAVIGATION */}
       <Navigation />
 
+      {/* Accessible page heading; visually hidden to preserve the existing design. */}
+      <h1 className="sr-only">Crop Intelligence and Precision Agriculture | Pollen Systems</h1>
+
       {/* CROP SHOWCASE */}
       <CropShowcase />
 

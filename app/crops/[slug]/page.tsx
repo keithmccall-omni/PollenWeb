@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { pageMetadata } from "../../_lib/seo";
 import crops from "@/data/crops.json";
 
 import Navigation from "@/components/navigation/Navigation";
@@ -13,6 +15,20 @@ interface PageProps {
   params: Promise<{
     slug: string;
   }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const crop = crops.find((item) => item.slug === slug);
+  if (!crop) return { title: "Crop Not Found", robots: { index: false, follow: false } };
+  return pageMetadata(
+    `${crop.name} Crop Monitoring & AI Analytics`,
+    // Keep the search snippet within the monitor's 70–165 character guideline.
+    crop.description.length <= 165
+      ? crop.description
+      : crop.description.slice(0, 162).replace(/\s+\S*$/, "").replace(/[,;:.\s]+$/, "") + ".",
+    `/crops/${encodeURIComponent(crop.slug)}`
+  );
 }
 
 export default async function CropDetailPage({

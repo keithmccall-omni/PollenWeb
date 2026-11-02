@@ -532,9 +532,9 @@ export default function ContactPage() {
             Contact Pollen Systems
           </p>
 
-          <h2 className="mt-5 text-5xl font-light tracking-tight">
+          <h1 className="mt-5 text-5xl font-light tracking-tight">
             Start a Conversation
-          </h2>
+          </h1>
 
           <form
             onSubmit={handleSubmit}
